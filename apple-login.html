@@ -27,12 +27,12 @@
     </main>
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
-      import { browserSessionPersistence, getAuth, OAuthProvider, setPersistence, signInWithPopup } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+      import { browserSessionPersistence, getAuth, getRedirectResult, OAuthProvider, setPersistence, signInWithRedirect } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
 
       const FUNCTION_BASE = "https://asia-northeast3-s8ju-4f5c1.cloudfunctions.net";
       const query = new URLSearchParams(location.search);
-      const state = query.get("state") || "";
-      const returnUrl = query.get("returnUrl") || "";
+      const state = query.get("state") || sessionStorage.getItem("s8ju.apple.state") || "";
+      const returnUrl = query.get("returnUrl") || sessionStorage.getItem("s8ju.apple.returnUrl") || "";
       const button = document.querySelector("#login");
       const message = document.querySelector("#message");
       const app = initializeApp({
@@ -63,6 +63,9 @@
         });
         const body = await response.json();
         if (!response.ok || !body.redirectUrl) throw new Error(body.error || "앱으로 돌아갈 수 없습니다.");
+        sessionStorage.removeItem("s8ju.apple.pending");
+        sessionStorage.removeItem("s8ju.apple.state");
+        sessionStorage.removeItem("s8ju.apple.returnUrl");
         location.assign(body.redirectUrl);
       }
 
@@ -76,12 +79,33 @@
           button.disabled = true;
           button.textContent = "Apple 연결 중…";
           await setPersistence(auth, browserSessionPersistence);
-          const result = await signInWithPopup(auth, provider);
-          await finish(result.user);
+          sessionStorage.setItem("s8ju.apple.pending", "1");
+          sessionStorage.setItem("s8ju.apple.state", state);
+          sessionStorage.setItem("s8ju.apple.returnUrl", returnUrl);
+          await signInWithRedirect(auth, provider);
         } catch (error) {
           showError(error);
         }
       });
+
+      async function resumeRedirect() {
+        if (sessionStorage.getItem("s8ju.apple.pending") !== "1") return;
+        try {
+          button.disabled = true;
+          button.textContent = "Apple 로그인 확인 중…";
+          await setPersistence(auth, browserSessionPersistence);
+          const result = await getRedirectResult(auth);
+          if (!result?.user) {
+            sessionStorage.removeItem("s8ju.apple.pending");
+            throw new Error("Apple 로그인 결과를 받지 못했습니다. 다시 시도해 주세요.");
+          }
+          await finish(result.user);
+        } catch (error) {
+          showError(error);
+        }
+      }
+
+      void resumeRedirect();
     </script>
   </body>
 </html>
