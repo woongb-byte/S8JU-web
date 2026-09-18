@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>S8JU Apple 로그인</title>
+    <style>
+      :root { color-scheme: light; font-family: Pretendard, "Noto Sans KR", system-ui, sans-serif; }
+      * { box-sizing: border-box; }
+      body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #f4f1ea; color: #111; }
+      main { width: min(440px, calc(100% - 32px)); padding: 36px 26px; border: 1px solid #ddd5c9; border-radius: 28px; background: #fffdf8; }
+      .brand { font-size: 18px; font-weight: 900; letter-spacing: .18em; }
+      h1 { margin: 24px 0 10px; font-size: 25px; line-height: 1.35; }
+      p { margin: 0; color: #6b665f; line-height: 1.65; }
+      button { width: 100%; min-height: 54px; margin-top: 24px; border: 0; border-radius: 15px; background: #000; color: #fff; font: inherit; font-weight: 900; cursor: pointer; }
+      button:disabled { opacity: .5; cursor: default; }
+      #message { min-height: 26px; margin-top: 16px; color: #8a3e34; font-weight: 700; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="brand">S8JU</div>
+      <h1>Apple 계정으로 로그인</h1>
+      <p>Apple에서 계정을 확인한 뒤 S8JU 앱으로 안전하게 돌아갑니다.</p>
+      <button id="login" type="button">Apple로 계속하기</button>
+      <p id="message" role="alert" aria-live="polite"></p>
+    </main>
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+      import { browserSessionPersistence, getAuth, OAuthProvider, setPersistence, signInWithPopup } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+
+      const FUNCTION_BASE = "https://asia-northeast3-s8ju-4f5c1.cloudfunctions.net";
+      const query = new URLSearchParams(location.search);
+      const state = query.get("state") || "";
+      const returnUrl = query.get("returnUrl") || "";
+      const button = document.querySelector("#login");
+      const message = document.querySelector("#message");
+      const app = initializeApp({
+        apiKey: "AIzaSyDxoScrz7lk737CZ3ss_ymkymqSFY8RJAc",
+        authDomain: "s8ju-4f5c1.firebaseapp.com",
+        projectId: "s8ju-4f5c1",
+        appId: "1:760487462636:web:f380f036cd9876a28347c9",
+      });
+      const auth = getAuth(app);
+      const provider = new OAuthProvider("apple.com");
+      provider.addScope("email");
+      provider.addScope("name");
+
+      function showError(error) {
+        button.disabled = false;
+        button.textContent = "Apple로 다시 시도";
+        message.textContent = error instanceof Error ? error.message : "Apple 로그인을 완료하지 못했습니다.";
+      }
+
+      async function finish(user) {
+        button.disabled = true;
+        button.textContent = "S8JU로 돌아가는 중…";
+        message.textContent = "";
+        const response = await fetch(`${FUNCTION_BASE}/createNativeAppleLoginTicket`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${await user.getIdToken(true)}`, "Content-Type": "application/json" },
+          body: JSON.stringify({ state, returnUrl }),
+        });
+        const body = await response.json();
+        if (!response.ok || !body.redirectUrl) throw new Error(body.error || "앱으로 돌아갈 수 없습니다.");
+        location.assign(body.redirectUrl);
+      }
+
+      if (!state || !/^s8ju:\/\/auth\/apple(?:[/?#]|$)/.test(returnUrl)) {
+        showError(new Error("S8JU 앱에서 Apple 로그인을 다시 시작해 주세요."));
+        button.disabled = true;
+      }
+
+      button.addEventListener("click", async () => {
+        try {
+          button.disabled = true;
+          button.textContent = "Apple 연결 중…";
+          await setPersistence(auth, browserSessionPersistence);
+          const result = await signInWithPopup(auth, provider);
+          await finish(result.user);
+        } catch (error) {
+          showError(error);
+        }
+      });
+    </script>
+  </body>
+</html>
