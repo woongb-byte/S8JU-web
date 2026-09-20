@@ -1,0 +1,17 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls",
+      "delegate_permission/common.get_login_creds"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.hproduction.s8ju",
+      "sha256_cert_fingerprints": [
+        "9F:33:A7:D1:EF:77:33:66:F0:CA:5C:0D:8B:6B:B1:15:CD:B7:8F:F6:BB:86:33:96:E9:2A:3D:8E:67:0F:D3:B0",
+        "FD:28:85:F6:33:9D:FB:1A:C7:A8:7F:D2:46:23:8B:CE:F5:D6:43:B8:C3:A5:8B:53:19:BD:D9:44:07:73:3B:63",
+        "AD:66:E1:5F:F5:12:51:50:3E:0E:2D:9F:BF:B6:0E:42:2D:69:E7:15:86:C4:55:0A:D0:CA:BF:6F:A6:0D:3E:8D"
+      ]
+    }
+  }
+]
