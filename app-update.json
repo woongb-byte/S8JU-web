@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "android": {
+    "enabled": false,
+    "latestPublishedVersionCode": 46,
+    "displayVersion": "0.1.0",
+    "message": "더 편리해진 S8JU를 이용하려면 최신 버전으로 업데이트해 주세요."
+  }
+}
