@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "android": {
     "enabled": true,
-    "latestPublishedVersionCode": 51,
+    "latestPublishedVersionCode": 57,
     "displayVersion": "0.1.0",
-    "message": "더 편리해진 S8JU를 이용하려면 최신 버전으로 업데이트해 주세요."
+    "message": "오늘의 운세와 궁합 해설을 개선하고, 크기에 맞춰 바뀌는 새 위젯 디자인을 적용했습니다. 최신 버전으로 업데이트해 주세요."
   }
 }
