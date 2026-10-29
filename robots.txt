@@ -1,0 +1,6 @@
+# Public pages and assets may be crawled by search engines and AI search crawlers.
+# Authentication and database rules, not robots.txt, protect private user data.
+User-agent: *
+Allow: /
+
+Sitemap: https://s8ju.co.kr/sitemap.xml
