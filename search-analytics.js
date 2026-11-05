@@ -1,7 +1,7 @@
 /* Public editorial pages only. Never send input, query strings or user IDs. */
 (function () {
   'use strict';
-  var pages = ['/about.html', '/free-saju-app.html', '/saju-birth-time.html', '/manse-calendar-guide.html'];
+  var pages = ['/about.html', '/free-saju-app.html', '/saju-birth-time.html', '/manse-calendar-guide.html', '/saju-five-elements.html', '/saju-compatibility-guide.html'];
   var path = window.location.pathname;
   if (!['s8ju.co.kr', 'www.s8ju.co.kr'].includes(window.location.hostname) || !pages.includes(path)) return;
   var measurementId = 'G-B4LS0QQWKT';
